@@ -15,10 +15,4 @@
     <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.5.375.457" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="TTClient.config.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

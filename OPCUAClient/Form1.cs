@@ -47,7 +47,7 @@ namespace OPCUAClient
             //callback creation
             MonitoredItemNotification = new MonitoredItemNotificationEventHandler(MonitoredItem_Notification);
 
-            var serverUrl = "opc.tcp://FS-TS-P360:53530/OPCUA/SimulationServer";
+            var serverUrl = "opc.tcp://10.35.16.18:4840";
 
             // Create the session.  
             var endpointDescription = CoreClientUtils.SelectEndpoint(config, serverUrl, false);
@@ -85,7 +85,7 @@ namespace OPCUAClient
 
             Browse("ns=3;i=1007");
 
-            Monitor("ns=3;i=1001");
+            Monitor("ns=3;s=\"TEST\".\"out\"");
 
 
             //Console.ReadKey();

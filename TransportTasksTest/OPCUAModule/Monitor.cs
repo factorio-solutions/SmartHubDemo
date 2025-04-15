@@ -1,13 +1,12 @@
-﻿using System.Threading.Tasks;
-//using Microsoft.AspNetCore.Http;
-using Opc.Ua;
+﻿using Opc.Ua;
 using Opc.Ua.Client;
 using Opc.Ua.Configuration;
 
-
-namespace UAClient
+namespace TransportTasksTest.OPCUAModule
 {
-    internal class Program
+
+
+    public class OPCMonitor
     {
         internal static Session? Session { get; set; }
 
@@ -17,9 +16,7 @@ namespace UAClient
 
         public static MonitoredItemNotificationEventHandler MonitoredItemNotification;
 
-
-
-        static async Task Main(string[] args)
+        public void Monitor(string[] args)
         {
             var app = new ApplicationInstance
             {
@@ -39,13 +36,13 @@ namespace UAClient
 
             app.CheckApplicationInstanceCertificates(false, 12).Wait();
 
-            //var serverUrl = "opc.tcp://10.35.16.18:4840";
+            var serverUrl = "opc.tcp://10.35.16.18:4840";
 
 
             //callback creation
             MonitoredItemNotification = new MonitoredItemNotificationEventHandler(MonitoredItem_Notification);
 
-            var serverUrl = "opc.tcp://FS-TS-P360:53530/OPCUA/SimulationServer";
+            //var serverUrl = "opc.tcp://FS-TS-P360:53530/OPCUA/SimulationServer";
 
             // Create the session.  
             var endpointDescription = CoreClientUtils.SelectEndpoint(config, serverUrl, false);
@@ -54,50 +51,23 @@ namespace UAClient
 
             ReconnectHandler = new SessionReconnectHandler(true, 10 * 1000);
 
-            Session = await Opc.Ua.Client.Session.Create(
+            Session =  Opc.Ua.Client.Session.Create(
                 config,
                 endpoint,
                 true,
                 config.ApplicationName,
                 60000,
                 null,
-                null);
+                null).GetAwaiter().GetResult();
 
             Session.KeepAlive += Session_KeepAlive;
 
-            //Console.ReadKey();
+            //Browse("ns=3;i=1007");
 
+            MonitorNode("ns=3;s=\"TEST\".\"out\"");
+        }
 
-
-            // With the corrected code:
-            //var browseDescription = new BrowseDescription
-            //{
-            //    NodeId = new NodeId("ns=3;s=TEST"), //new NodeId(85), 
-            //    BrowseDirection = BrowseDirection.Forward,
-            //    IncludeSubtypes = true,
-            //    NodeClassMask = (uint)NodeClass.Object | (uint)NodeClass.Variable,
-            //    ResultMask = (uint)BrowseResultMask.All
-            //};
-
-            Browse("ns=3;i=1007");
-
-            Monitor("ns=3;i=1001");
-
-
-             Console.ReadKey();
-
-            //Session.Dispose();
-
-            while (false)
-            {
-
-            }
-
-
-
-         }
-
-        private static void Monitor(string nodeId)
+        private static void MonitorNode(string nodeId)
         {
             if (Subscription == null)
             {
@@ -134,7 +104,19 @@ namespace UAClient
 
         private static void MonitoredItem_Notification(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs e)
         {
-            //throw new NotImplementedException();
+            var notification = e.NotificationValue as Opc.Ua.MonitoredItemNotification;
+            if (notification != null && notification.Value != null && notification.Value.Value is bool value)
+            {
+                if (value)
+                {
+                    //AMRModule.AMRCommands.StartMission();
+                }
+                else
+                {                   
+                    AMRModule.AMRCommands.CreateBox();
+                    //AMRModule.AMRCommands.DeleteBox();
+                }
+            }
         }
 
         private static void Browse(string sourceId)
@@ -173,16 +155,16 @@ namespace UAClient
                 nodeToRead.NodeId = new NodeId(sourceId); // (NodeId)result.First().References.First().NodeId;
                 nodeToRead.AttributeId = 13;
 
-                var y = Session.Read(null, 0, TimestampsToReturn.Neither,  new ReadValueIdCollection() { nodeToRead }, out var result2, out var dgInfos2);
+                var y = Session.Read(null, 0, TimestampsToReturn.Neither, new ReadValueIdCollection() { nodeToRead }, out var result2, out var dgInfos2);
             }
             catch (Exception)
             {
 
-                
+
             }
         }
 
-        private static void Session_KeepAlive(ISession session, KeepAliveEventArgs e)
+        private static void Session_KeepAlive(Opc.Ua.Client.ISession session, KeepAliveEventArgs e)
         {
             if (ServiceResult.IsBad(e.Status))
             {
@@ -203,9 +185,12 @@ namespace UAClient
                     Session.KeepAlive += Session_KeepAlive;
 
                     Utils.SilentDispose(session);
+                }
 
-
-
+                foreach (Subscription subscription in Session.Subscriptions)
+                {
+                    Subscription = subscription;
+                    break;
                 }
             }
         }
@@ -215,5 +200,6 @@ namespace UAClient
             // Check if the certificate is trusted.
             e.Accept = true;
         }
+
     }
 }

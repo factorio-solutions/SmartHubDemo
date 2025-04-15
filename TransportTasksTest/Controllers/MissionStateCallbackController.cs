@@ -1,14 +1,43 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using TransportTasksTest.OPCUAModule;
 
 namespace TransportTasksTest.Controllers
 {
     public class MissionStateCallbackController : Controller
     {
-        // GET: MissionStateCallbackController
-        public string Index()
+
+
+        public MissionStateCallbackController()
         {
-            return "test";
+
+        }
+
+
+        // GET: MissionStateCallbackController
+        public async Task<IActionResult> Index()
+        {
+            try
+            {
+                // Read the request body
+                var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+
+                // Log the received payload
+                Console.WriteLine($"Received callback: {requestBody}");
+
+                // Respond with a success status
+                Response.StatusCode = StatusCodes.Status200OK;
+                await Response.WriteAsync("Callback received successfully.");
+                return new EmptyResult();
+            }
+            catch (Exception ex)
+            {
+                // Handle any errors
+                Console.WriteLine($"Error processing callback: {ex.Message}");
+                Response.StatusCode = StatusCodes.Status500InternalServerError;
+                await Response.WriteAsync("Error processing callback.");
+                return new EmptyResult();
+            }
         }
 
         // GET: MissionStateCallbackController/Details/5
