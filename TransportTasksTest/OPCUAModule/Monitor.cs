@@ -4,8 +4,6 @@ using Opc.Ua.Configuration;
 
 namespace TransportTasksTest.OPCUAModule
 {
-
-
     public class OPCMonitor
     {
         internal static Session? Session { get; set; }
@@ -102,6 +100,42 @@ namespace TransportTasksTest.OPCUAModule
             Subscription.ApplyChanges();
         }
 
+        public static bool ProcessCallback(string args)
+        {
+            MissionStatusModel model;
+
+            try
+            {
+                model = Newtonsoft.Json.JsonConvert.DeserializeObject<MissionStatusModel>(args);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+
+            if (model != null)
+            {
+                // Process the model as needed
+                if (model.MissionStatus == "COMPLETED")
+                {
+                    return true;
+                }
+
+                Console.WriteLine($"Received MissionStatusModel: {model.MissionCode}");
+            }
+            else
+            {
+                Console.WriteLine("Failed to deserialize MissionStatusModel.");
+                return false;
+            }
+            // This method is called when the monitored item receives a notification.
+            // You can process the notification here.
+            // For example, you can log the value or perform some action based on it.
+            Console.WriteLine("Notification received.");
+
+            return false;
+        }
+
         private static void MonitoredItem_Notification(MonitoredItem monitoredItem, MonitoredItemNotificationEventArgs e)
         {
             var notification = e.NotificationValue as Opc.Ua.MonitoredItemNotification;
@@ -109,7 +143,7 @@ namespace TransportTasksTest.OPCUAModule
             {
                 if (value)
                 {
-                    //AMRModule.AMRCommands.StartMission();
+                    AMRModule.AMRCommands.StartMission();
                 }
                 else
                 {                   

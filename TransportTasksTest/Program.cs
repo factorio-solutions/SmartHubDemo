@@ -9,6 +9,9 @@ public class Program
 
     private static void Main(string[] args)
     {
+        Monitor = new OPCMonitor();
+        Monitor.Monitor(null);
+
         var builder = WebApplication.CreateBuilder(args);
 
         builder.WebHost.UseUrls("http://0.0.0.0:7042");
@@ -50,46 +53,21 @@ public class Program
         app.UseAuthorization();
 
         app.MapControllerRoute(
+            name: "MissionStateCallback",
+            pattern: "MissionStateCallback/{action=Index}/{id?}",
+            defaults: new { controller = "MissionStateCallback" }
+        );
+
+        app.MapControllerRoute(
             name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}");
+            pattern: "{controller=Home}/{action=Index}/{id?}"
+        );
+
+
         app.MapRazorPages();
 
-        // Fix for CS1002 and CS1061: Ensure the method is called correctly with a semicolon and is defined as an extension method.
-        //app.MapMissionStateCallback();
-
         app.Run();
-
-        Monitor = new OPCMonitor();
-        Monitor.Monitor(null);
     }
 }
 
 // Fix for CS1061: Define the extension method in a static class.
-public static class WebApplicationExtensions
-{
-    public static void MapMissionStateCallback(this WebApplication app)
-    {
-        app.MapPost("/missionStateCallback", async (context) =>
-        {
-            try
-            {
-                // Read the request body
-                var requestBody = await new StreamReader(context.Request.Body).ReadToEndAsync();
-
-                // Log the received payload
-                Console.WriteLine($"Received callback: {requestBody}");
-
-                // Respond with a success status
-                context.Response.StatusCode = StatusCodes.Status200OK;
-                await context.Response.WriteAsync("Callback received successfully.");
-            }
-            catch (Exception ex)
-            {
-                // Handle any errors
-                Console.WriteLine($"Error processing callback: {ex.Message}");
-                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await context.Response.WriteAsync("Error processing callback.");
-            }
-        });
-    }
-}
