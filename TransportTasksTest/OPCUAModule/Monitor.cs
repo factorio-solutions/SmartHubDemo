@@ -14,6 +14,8 @@ namespace TransportTasksTest.OPCUAModule
 
         public static MonitoredItemNotificationEventHandler MonitoredItemNotification;
 
+        public static bool BoxCreated { get; set; } = false;
+
         public void Monitor(string[] args)
         {
             var app = new ApplicationInstance
@@ -49,7 +51,7 @@ namespace TransportTasksTest.OPCUAModule
 
             ReconnectHandler = new SessionReconnectHandler(true, 10 * 1000);
 
-            Session =  Opc.Ua.Client.Session.Create(
+            Session = Opc.Ua.Client.Session.Create(
                 config,
                 endpoint,
                 true,
@@ -118,6 +120,8 @@ namespace TransportTasksTest.OPCUAModule
                 // Process the model as needed
                 if (model.MissionStatus == "COMPLETED")
                 {
+                    Console.WriteLine("Deleting box..");
+                    AMRModule.AMRCommands.DeleteBox();
                     return true;
                 }
 
@@ -143,12 +147,9 @@ namespace TransportTasksTest.OPCUAModule
             {
                 if (value)
                 {
-                    AMRModule.AMRCommands.StartMission();
-                }
-                else
-                {                   
+                    Console.WriteLine("Creating box..");
                     AMRModule.AMRCommands.CreateBox();
-                    //AMRModule.AMRCommands.DeleteBox();
+                    BoxCreated = true;
                 }
             }
         }

@@ -66,12 +66,12 @@ namespace TransportTasksTest.AMRModule
            
         }
 
-        static async Task FillUpBox()
+        public static async Task FillUpBox()
         {
             var url = "http://10.35.16.40:10870/interfaces/api/amr/updateContainer";
 
             // Initialize variables for the payload  
-            var container_code = "ap001";
+            var container_code = "ap009";
             var request_id = $"FS-Smart-Hub-Test{DateTime.Now.ToString()}";
 
             // JSON payload to send  

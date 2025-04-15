@@ -25,19 +25,31 @@ namespace TransportTasksTest.Controllers
                 // Log the received payload
                 Console.WriteLine($"Received callback: {requestBody}");
 
+                OPCMonitor.ProcessCallback(requestBody);
+
+                // Pass the enabled state to the view
+                ViewBag.IsButtonEnabled = OPCMonitor.BoxCreated;
+
                 // Respond with a success status
                 Response.StatusCode = StatusCodes.Status200OK;
-                await Response.WriteAsync("Callback received successfully.");
-                return new EmptyResult();
+
+                return View();
             }
             catch (Exception ex)
             {
                 // Handle any errors
-                Console.WriteLine($"Error processing callback: {ex.Message}");
-                Response.StatusCode = StatusCodes.Status500InternalServerError;
-                await Response.WriteAsync("Error processing callback.");
-                return new EmptyResult();
+                ViewBag.IsButtonEnabled = false; // Default to disabled in case of error
+                return View();
             }
+        }
+
+        public ActionResult Go()
+        {
+            Console.WriteLine("Filling up box..");
+            AMRModule.AMRCommands.FillUpBox();
+            Console.WriteLine("Starting transport mission..");
+            AMRModule.AMRCommands.StartMission();
+            return View("Go");
         }
 
         // GET: MissionStateCallbackController/Details/5
