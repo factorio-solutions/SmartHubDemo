@@ -35,7 +35,7 @@ namespace TransportTasksTest.AMRModule
 
             var responseString = await response.Content.ReadAsStringAsync();
 
-            Console.WriteLine(responseString);           
+            Console.WriteLine($"Create Box:{responseString}");           
         }
 
         internal static async void DeleteBox()
@@ -62,7 +62,7 @@ namespace TransportTasksTest.AMRModule
 
             var responseString = await response.Content.ReadAsStringAsync();
 
-            Console.WriteLine(responseString);
+            Console.WriteLine($"Delete Box:{responseString}");
            
         }
 
@@ -90,12 +90,12 @@ namespace TransportTasksTest.AMRModule
 
             var responseString = await response.Content.ReadAsStringAsync();
 
-            Console.WriteLine(responseString);
+            Console.WriteLine($"Fill Up Box:{responseString}");
 
             Console.ReadKey();
         }
 
-        public static async Task StartMission()
+        public static async Task                StartMission()
         {
             var timestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             var request_id = $"FS-Smart-Hub-Test{DateTime.Now.ToString()}";
@@ -151,7 +151,7 @@ namespace TransportTasksTest.AMRModule
 
             var responseString = await response.Content.ReadAsStringAsync();
 
-            Console.WriteLine(responseString);
+            Console.WriteLine($"Start Transport Mission: {responseString}");
 
             Console.ReadKey();
         }

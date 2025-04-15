@@ -45,9 +45,7 @@ namespace TransportTasksTest.Controllers
 
         public ActionResult Go()
         {
-            Console.WriteLine("Filling up box..");
-            AMRModule.AMRCommands.FillUpBox();
-            Console.WriteLine("Starting transport mission..");
+            AMRModule.AMRCommands.FillUpBox();         
             AMRModule.AMRCommands.StartMission();
             return View("Go");
         }

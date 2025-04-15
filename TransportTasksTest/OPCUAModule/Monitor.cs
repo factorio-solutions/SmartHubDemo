@@ -119,8 +119,7 @@ namespace TransportTasksTest.OPCUAModule
             {
                 // Process the model as needed
                 if (model.MissionStatus == "COMPLETED")
-                {
-                    Console.WriteLine("Deleting box..");
+                {                   
                     AMRModule.AMRCommands.DeleteBox();
                     return true;
                 }
@@ -129,13 +128,13 @@ namespace TransportTasksTest.OPCUAModule
             }
             else
             {
-                Console.WriteLine("Failed to deserialize MissionStatusModel.");
+                //Console.WriteLine("Failed to deserialize MissionStatusModel.");
                 return false;
             }
             // This method is called when the monitored item receives a notification.
             // You can process the notification here.
             // For example, you can log the value or perform some action based on it.
-            Console.WriteLine("Notification received.");
+            //Console.WriteLine("Notification received.");
 
             return false;
         }
@@ -146,8 +145,7 @@ namespace TransportTasksTest.OPCUAModule
             if (notification != null && notification.Value != null && notification.Value.Value is bool value)
             {
                 if (value)
-                {
-                    Console.WriteLine("Creating box..");
+                {                   
                     AMRModule.AMRCommands.CreateBox();
                     BoxCreated = true;
                 }
